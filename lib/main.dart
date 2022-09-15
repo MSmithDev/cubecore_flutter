@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cubecore_flutter/cubecore.dart';
 
 void main() => runApp(App());
 
@@ -43,7 +44,7 @@ class ScreenA extends StatefulWidget {
 
 class _ScreenA extends State<ScreenA> {
   int _counter = 0;
-
+  CubeCore cube = CubeCore("192.168.0.187", 12345);
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
