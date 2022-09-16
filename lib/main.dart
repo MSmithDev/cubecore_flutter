@@ -44,7 +44,25 @@ class ScreenA extends StatefulWidget {
 
 class _ScreenA extends State<ScreenA> {
   int _counter = 0;
-  CubeCore cube = CubeCore("192.168.0.187", 12345);
+  bool isReady = false;
+  CubeCore? cubecore;
+  Future<String> getData() {
+    return Future.delayed(Duration(seconds: 2), () {
+      return "I am data";
+      // throw Exception("Custom Error");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initCube();
+  }
+
+  initCube() async {
+    cubecore = await CubeCore.getInstance();
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -56,6 +74,8 @@ class _ScreenA extends State<ScreenA> {
     });
   }
 
+  var ledRange = RangeValues(0, 900);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +86,50 @@ class _ScreenA extends State<ScreenA> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            FutureBuilder(
+                future: getData(),
+                builder: (ctx, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    // If we got an error
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          '${snapshot.error} occurred',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      );
+
+                      // if we got our data
+                    } else if (snapshot.hasData) {
+                      // Extracting data from snapshot object
+                      final data = snapshot.data as String;
+                      return Center(
+                        child: Text(
+                          '$data',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      );
+                    }
+                  }
+                  return Center(child: CircularProgressIndicator());
+                }),
+            Text("Start: " +
+                ledRange.start.round().toString() +
+                " Stop: " +
+                ledRange.end.round().toString()),
+            RangeSlider(
+                values: ledRange,
+                min: 0,
+                max: 900,
+                onChanged: (RangeValues newRange) {
+                  if (cubecore != null && cubecore?.isReady == true) {
+                    print("IsTrue");
+                    cubecore?.sendRange(newRange);
+                  }
+                  setState(() {
+                    ledRange = newRange;
+                  });
+                }),
             ElevatedButton(
                 onPressed: () => GoRouter.of(context).go('/b'),
                 child: Text("Goto B")),
