@@ -43,6 +43,8 @@ class ScreenA extends StatefulWidget {
 }
 
 class _ScreenA extends State<ScreenA> {
+  int NumLeds = 100;
+  RangeValues ledRange = RangeValues(0, 10);
   int _counter = 0;
   bool isReady = false;
   CubeCore? cubecore;
@@ -55,12 +57,13 @@ class _ScreenA extends State<ScreenA> {
 
   @override
   void initState() {
+    ledRange = RangeValues(0, NumLeds.toDouble());
     super.initState();
     initCube();
   }
 
   initCube() async {
-    cubecore = await CubeCore.getInstance();
+    cubecore = await CubeCore.getInstance(NumLeds);
   }
 
   void _incrementCounter() {
@@ -73,8 +76,6 @@ class _ScreenA extends State<ScreenA> {
       _counter++;
     });
   }
-
-  var ledRange = RangeValues(0, 900);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,8 @@ class _ScreenA extends State<ScreenA> {
             RangeSlider(
                 values: ledRange,
                 min: 0,
-                max: 900,
+                max: NumLeds.toDouble(),
+                divisions: 20,
                 onChanged: (RangeValues newRange) {
                   if (cubecore != null && cubecore?.isReady == true) {
                     print("IsTrue");
